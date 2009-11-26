@@ -2,6 +2,7 @@
 gopytest
 *.o
 *.6
+*.pyc
 _obj
 *.8
 *~

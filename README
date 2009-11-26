@@ -4,3 +4,15 @@ gopython
 Go Interface for Python.
 
 see http://blog.liris.org/2009/11/golangpython.html
+
+INSTALL
+--------
+
+ $ make && make gopytest
+
+gopytest
+---------
+You must add current directory into your PYTHONPATH before running gopytest.
+
+ $ PYTHONPATH=. ./gopytest
+
