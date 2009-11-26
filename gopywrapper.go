@@ -39,10 +39,7 @@ func (self *Object) Callable_Check() int {
 }
 
 func (self *Object) DecRef() {
-//	self.cptr.ob_refcnt--;
-//	if self.cptr.ob_refcnt == 0 {
-		C.Py_DecRef(self.cptr);
-//	}
+	C.Py_DecRef(self.cptr);
 }
 
 func XDecRef(self *Object) {
