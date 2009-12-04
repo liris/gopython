@@ -4,6 +4,16 @@ package py
 
  void Py_DecRef(PyObject* obj) { Py_DECREF(obj); }
  void Py_XDecRef(PyObject* obj) { Py_XDECREF(obj); }
+ int Arg_ParseTuple(PyObject * self, const char * name) {
+     return PyArg_ParseTuple(self, name);
+ }
+ 
+ PyObject* BuildIntValue(const char * name, int v) {
+     return Py_BuildValue(name, v);
+ }
+ PyObject* BuildStringValue(const char * name, const char* v) {
+     return Py_BuildValue(name, v);
+ }
 */
 import "C";
 import "unsafe";
@@ -23,8 +33,25 @@ func newObject(p *C.PyObject) *Object {
 	return self;
 }
 
-func (self *Object) GetAttrString(value string) *Object {
-	result := C.PyObject_GetAttrString(self.cptr, C.CString(value));
+func (self *Object) HasAttrString(attr_name string) int {
+	result := C.PyObject_HasAttrString(self.cptr, C.CString(attr_name));
+	return int(result);
+}
+
+func (self *Object) GetAttrString(attr_name string) *Object {
+	result := C.PyObject_GetAttrString(self.cptr, C.CString(attr_name));
+	return newObject((*C.PyObject)(unsafe.Pointer(result)));
+}
+
+func (self *Object) HasAttr(attr_name string) int {
+	result := C.PyObject_HasAttr(self.cptr, C.CString(attr_name));
+	return int(result);
+}
+
+// TODO: More Generic Object Interface
+
+func (self *Object) GetAttr(attr_name *Object) *Object {
+	result := C.PyObject_GetAttr(self.cptr, attr_name.cptr);
 	return newObject((*C.PyObject)(unsafe.Pointer(result)));
 }
 
@@ -67,14 +94,24 @@ func String_FromString(s string) *Object {
 	return newObject((*C.PyObject)(unsafe.Pointer(result)));
 }
 
-func Int_FromLong(value int) *Object {
+
+// intobject.h
+func Int_FromInt64(value int64) *Object {
 	result := C.PyInt_FromLong(C.long(value));
 	return newObject((*C.PyObject)(unsafe.Pointer(result)));
 }	
 
-// intobject.h
+func (self *Object) Int_AsInt64() int64 {
+	result := C.PyInt_AsLong(self.cptr);
+	return int64(result);
+}
 
-func (self *Object) Int_AsLong() int {
+func Int_FromInt(value int) *Object {
+	result := C.PyInt_FromLong(C.long(value));
+	return newObject((*C.PyObject)(unsafe.Pointer(result)));
+}	
+
+func (self *Object) Int_AsInt() int {
 	result := C.PyInt_AsLong(self.cptr);
 	return int(result);
 }
@@ -106,6 +143,30 @@ func Err_Occurred() *Object {
 
 func Import_Import(name *Object) *Object {
 	result := C.PyImport_Import(name.cptr);
+	return newObject((*C.PyObject)(unsafe.Pointer(result)));
+}
+// modsupport.h
+type CallbackFunction func(self *Object, args *Object) *Object
+
+type MethodDef struct {
+	Ml_name string;
+	Ml_meth CallbackFunction;
+	Ml_flags int;
+	Ml_doc string;
+}
+
+func (self *Object) Arg_ParseTuple(name string) int {
+	result := C.Arg_ParseTuple(self.cptr, C.CString(name));
+	return int(result);
+}
+
+func BuildIntValue(name string, v int) *Object {
+	result := C.BuildIntValue(C.CString(name), C.int(v));
+	return newObject((*C.PyObject)(unsafe.Pointer(result)));
+}
+
+func BuildStringValue(name string, v string) *Object {
+	result := C.BuildStringValue(C.CString(name), C.CString(v));
 	return newObject((*C.PyObject)(unsafe.Pointer(result)));
 }
 

@@ -13,7 +13,7 @@ func runSimpleString() {
 }
 
 func setArgs(pArgs *py.Object, index int, value int) bool {
-	pValue := py.Int_FromLong(value);
+	pValue := py.Int_FromInt(value);
 	if pValue == nil {
 		fmt.Printf("Value : %d\n", value);
 		py.Err_Print();
@@ -49,7 +49,7 @@ func runFunc(pythonfile string, funcname string, arg []int) {
 			pValue := pFunc.CallObject(pArgs);
 			pArgs.DecRef();
 			if pValue != nil {
-				fmt.Printf("Result of call: %d\n", pValue.Int_AsLong());
+				fmt.Printf("Result of call: %d\n", pValue.Int_AsInt64());
 				pValue.DecRef();
 			} else {
 				pFunc.DecRef();
@@ -71,6 +71,7 @@ func runFunc(pythonfile string, funcname string, arg []int) {
 	}
 	fmt.Printf("--- runFunc done ---\n\n");
 }
+
 
 func main() {
 	py.Initialize();
